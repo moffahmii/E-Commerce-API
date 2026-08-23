@@ -1,6 +1,7 @@
 const express = require("express");
 const morgan = require("morgan");
 const dotenv = require("dotenv");
+const ApiError = require("./utils/apiError");
 
 // Load environment variables
 dotenv.config({ path: "config.env" });
@@ -20,11 +21,25 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 // Routes
-app.get("/", (req, res) => {
-  res.send("E-Commerce API");
+app.use("/api/v1/categories", categoryRoute);
+
+// Route Not Found
+app.use((req, res, next) => {
+  next(new ApiError(404, "Cannot find this route"));
 });
 
-app.use("/api/v1/categories", categoryRoute);
+// Global Error Handler
+app.use((err, req, res, next) => {
+  // Mongoose CastError
+  if (err.name === "CastError") {
+    err = new ApiError(404, "Invalid ID");
+  }
+
+  res.status(err.statusCode || 500).json({
+    status: err.status || "error",
+    message: err.message,
+  });
+});
 
 // Start Server
 const PORT = process.env.PORT;
