@@ -2,6 +2,7 @@ const express = require("express");
 const morgan = require("morgan");
 const dotenv = require("dotenv");
 const ApiError = require("./utils/apiError");
+const GlobalError = require("./middlewares/errorMiddleware");
 
 // Load environment variables
 dotenv.config({ path: "config.env" });
@@ -29,17 +30,7 @@ app.use((req, res, next) => {
 });
 
 // Global Error Handler
-app.use((err, req, res, next) => {
-  // Mongoose CastError
-  if (err.name === "CastError") {
-    err = new ApiError(404, "Invalid ID");
-  }
-
-  res.status(err.statusCode || 500).json({
-    status: err.status || "error",
-    message: err.message,
-  });
-});
+app.use(GlobalError);
 
 // Start Server
 const PORT = process.env.PORT;
