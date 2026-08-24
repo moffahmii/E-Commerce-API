@@ -7,9 +7,6 @@ const DatabaseConnection = () => {
       console.log("Database Connected");
       console.log("Database:", mongoose.connection.name);
     })
-    .catch((err) => {
-      console.error("Database Error", err);
-    });
 };
 
 module.exports = DatabaseConnection;
